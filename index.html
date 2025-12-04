@@ -28,7 +28,7 @@
 
     <h1>Аукцион Кеса<br><span style="font-size:0.7em;background:linear-gradient(45deg,#ffd700,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Нормальный Аукцион</span></h1>
     <div class="subtitle">Платит только победитель</div>
-    <div class="status" id="status">Загружается...</div>
+    <div class="status" id="status">Инициализация...</div>
 
     <div class="form-container">
         <h2 style="text-align:center;margin-top:0">Сделать ставку</h2>
@@ -40,8 +40,8 @@
     <div id="betsTableContainer"></div>
 
     <script>
-        const TOKEN = "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";
-        const REPO = "KesidaMoe/auk2";        // ← теперь правильный репозиторий
+        const TOKEN = "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";  // ← свежий токен
+        const REPO = "KesidaMoe/auk2";
         const FOLDER = "bets";
         const API = `https://api.github.com/repos/${REPO}/contents/${FOLDER}`;
 
@@ -49,22 +49,26 @@
 
         async function loadBets() {
             try {
-                const res = await fetch(API, {headers: {"Authorization": `token ${TOKEN}`}});
-                if (!res.ok) throw new Error("Нет папки bets или ошибка доступа");
+                const res = await fetch(API, {headers: {Authorization: `token ${TOKEN}`}});
+                if (res.status === 404) {
+                    document.getElementById("status").textContent = "Папка bets ещё не создана — первая ставка создаст её автоматически";
+                    bets = [];
+                    renderTable();
+                    return;
+                }
+                if (!res.ok) throw new Error(`Ошибка ${res.status}`);
                 const files = await res.json();
                 bets = [];
-
                 for (let file of files) {
                     if (file.name.endsWith(".json")) {
-                        const content = await fetch(file.download_url);
-                        const data = await content.json();
+                        const data = await (await fetch(file.download_url)).json();
                         bets.push(data);
                     }
                 }
                 sortAndRender();
                 document.getElementById("status").textContent = `Обновлено ${new Date().toLocaleTimeString()} | Ставок: ${bets.length}`;
-            } catch(e) {
-                document.getElementById("status").textContent = "Ошибка загрузки (создай папку bets)";
+            } catch (e) {
+                document.getElementById("status").textContent = "Ошибка загрузки: " + e.message;
             }
         }
 
@@ -76,31 +80,30 @@
         async function placeBet() {
             const nick = document.getElementById("nick").value.trim();
             const amount = parseInt(document.getElementById("amount").value);
-
-            if (!nick || !amount || amount <= 0) return alert("Ник и сумма обязательны!");
+            if (!nick || !amount) return alert("Заполни ник и сумму!");
 
             const existing = bets.find(b => b.nick.toLowerCase() === nick.toLowerCase());
-            if (existing && existing.amount >= amount) return alert("Твоя текущая ставка выше!");
+            if (existing && existing.amount >= amount) return alert("Делай ставку выше своей текущей!");
 
             const bet = {nick, amount, date: new Date().toLocaleString()};
             const filename = `${nick.toLowerCase().replace(/[^a-z0-9]/g,"")}_${Date.now()}.json`;
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(bet))));
 
-            await fetch(API + "/" + filename, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `token ${TOKEN}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: `Ставка ${nick}: ${amount}₽`,
-                    content: content
-                })
-            });
-
-            document.getElementById("nick").value = "";
-            document.getElementById("amount").value = "";
-            loadBets();
+            try {
+                await fetch(API + "/" + filename, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `token ${TOKEN}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({message: `Ставка ${nick}: ${amount}₽`, content})
+                });
+                document.getElementById("nick").value = "";
+                document.getElementById("amount").value = "";
+                loadBets();
+            } catch (e) {
+                alert("Не удалось сохранить ставку: " + e.message);
+            }
         }
 
         function renderTable() {
