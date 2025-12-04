@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аукцион ставок</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        input, button {
+            padding: 12px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        input {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #1a73e8;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .winner {
+            background: #d4edda !important;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .no-bets {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Аукцион ставок</h1>
+
+    <div class="form-container">
+        <h2>Сделать ставку</h2>
+        <input type="text" id="nick" placeholder="Твой ник" required>
+        <input type="number" id="amount" placeholder="Сумма ставки (только цифры)" min="1" required>
+        <button onclick="placeBet()">СДЕЛАТЬ СТАВКУ</button>
+    </div>
+
+    <h2>Текущие ставки</h2>
+    <div id="betsTableContainer"></div>
+
+    <script>
+        // Загружаем ставки из LocalStorage
+        let bets = JSON.parse(localStorage.getItem('auctionBets') || '[]');
+
+        // Сортируем по убыванию суммы
+        function sortBets() {
+            bets.sort((a, b) => b.amount - a.amount);
+        }
+
+        // Сохраняем в LocalStorage
+        function saveBets() {
+            localStorage.setItem('auctionBets', JSON.stringify(bets));
+        }
+
+        // Добавляем новую ставку
+        function placeBet() {
+            const nickInput = document.getElementById('nick');
+            const amountInput = document.getElementById('amount');
+
+            const nick = nickInput.value.trim();
+            const amount = parseInt(amountInput.value);
+
+            if (!nick || !amount || amount <= 0) {
+                alert('Заполни ник и корректную сумму!');
+                return;
+            }
+
+            // Проверяем, можно ли перебить свою же ставку
+            const existingIndex = bets.findIndex(b => b.nick.toLowerCase() === nick.toLowerCase());
+            if (existingIndex !== -1) {
+                if (bets[existingIndex].amount >= amount) {
+                    alert('Твоя предыдущая ставка выше или равна! Делай больше.');
+                    return;
+                }
+                // Обновляем существующую ставку
+                bets[existingIndex].amount = amount;
+                bets[existingIndex].date = new Date().toLocaleString();
+            } else {
+                // Новая ставка
+                bets.push({
+                    nick,
+                    amount,
+                    date: new Date().toLocaleString()
+                });
+            }
+
+            sortBets();
+            saveBets();
+            renderTable();
+
+            // Очищаем поля
+            nickInput.value = '';
+            amountInput.value = '';
+        }
+
+        // Рендерим таблицу
+        function renderTable() {
+            sortBets();
+            const container = document.getElementById('betsTableContainer');
+
+            if (bets.length === 0) {
+                container.innerHTML = '<div class="no-bets">Пока никто не сделал ставку 😢<br>Будь первым!</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <tr>
+                        <th>Место</th>
+                        <th>Ник</th>
+                        <th>Сумма</th>
+                        <th>Время</th>
+                    </tr>
+            `;
+
+            bets.forEach((bet, index) => {
+                const rowClass = index === 0 ? 'class="winner"' : '';
+                tableHTML += `
+                    <tr ${rowClass}>
+                        <td>${index + 1}</td>
+                        <td>${bet.nick}</td>
+                        <td><strong>${bet.amount.toLocaleString()} ₽</strong></td>
+                        <td>${bet.date}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</table>`;
+            container.innerHTML = tableHTML;
+        }
+
+        // При загрузке страницы
+        window.onload = renderTable;
+    </script>
+
+</body>
+</html>
