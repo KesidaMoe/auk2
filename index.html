@@ -5,126 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Аукцион Кеса - Нормальный Аукцион</title>
     <style>
-        body{font-family:Segoe UI,Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;min-height:100vh}
-        h1{text-align:center;font-size:4em;margin:30px 0;text-shadow:0 0 20px rgba(0,0,0,.5);background:linear-gradient(45deg,#ffd700,#ff6b6b,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 3s infinite}
-        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .subtitle{text-align:center;font-size:2em;font-weight:bold;margin-bottom:40px;opacity:.95;text-shadow:2px 2px 10px rgba(0,0,0,.6)}
-        .form-container{background:rgba(255,255,255,.15);backdrop-filter:blur(10px);padding:25px;border-radius:15px;box-shadow:0 8px 32px rgba(0,0,0,.3);margin-bottom:30px;border:1px solid rgba(255,255,255,.2)}
-        input,button{padding:14px;margin:12px 0;width:100%;font-size:18px;border-radius:8px;border:none}
-        input{background:rgba(255,255,255,.9);color:#333}
-        button{background:linear-gradient(45deg,#ff6b6b,#ffd700);color:#fff;font-weight:bold;cursor:pointer}
-        button:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(0,0,0,.3)}
-        table{width:100%;border-collapse:collapse;background:rgba(255,255,255,.1);border-radius:15px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.3)}
-        th{background:linear-gradient(45deg,#ff6b6b,#ffd700);padding:20px;font-size:1.3em}
-        td{padding:18px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
-        tr:nth-child(even){background:rgba(255,255,255,.05)}
-        .winner{background:linear-gradient(45deg,rgba(255,215,0,.5),rgba(255,107,107,.5))!important;font-size:1.4em;animation:glow 2s infinite}
-        @keyframes glow{0%,100%{box-shadow:0 0 20px gold}50%{box-shadow:0 0 50px gold}}
-        .status{text-align:center;padding:12px;background:rgba(255,255,255,.2);border-radius:10px;margin-bottom:15px;font-weight:bold}
-        .no-bets{text-align:center;padding:60px;font-size:1.8em;opacity:.8}
+        body {font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh;}
+        h1 {text-align: center; font-size: 4em; margin: 30px 0; text-shadow: 0 0 20px rgba(0,0,0,0.5); background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 3s infinite;}
+        @keyframes pulse {0%, 100% {transform: scale(1);} 50% {transform: scale(1.05);}}
+        .subtitle {text-align: center; font-size: 2em; font-weight: bold; margin-bottom: 40px; opacity: 0.95; text-shadow: 2px 2px 10px rgba(0,0,0,0.6);}
+        .form-container {background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.2);}
+        input, button {padding: 14px; margin: 12px 0; width: 100%; font-size: 18px; border-radius: 8px; border: none;}
+        input {background: rgba(255,255,255,0.9); color: #333;}
+        button {background: linear-gradient(45deg, #ff6b6b, #ffd700); color: white; font-weight: bold; cursor: pointer; transition: 0.3s;}
+        button:hover {transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3);}
+        table {width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.1); border-radius: 15px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.3);}
+        th {background: linear-gradient(45deg, #ff6b6b, #ffd700); padding: 20px; font-size: 1.3em;}
+        td {padding: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);}
+        tr:nth-child(even) {background: rgba(255,255,255,0.05);}
+        .winner {background: linear-gradient(45deg, rgba(255,215,0,0.5), rgba(255,107,107,0.5)) !important; font-size: 1.4em; animation: glow 2s infinite;}
+        @keyframes glow {0%, 100% {box-shadow: 0 0 20px gold;} 50% {box-shadow: 0 0 50px gold;}}
+        .status {text-align: center; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 10px; margin-bottom: 15px; font-weight: bold;}
+        .no-bets {text-align: center; padding: 60px; font-size: 1.8em; opacity: 0.8;}
     </style>
 </head>
 <body>
 
     <h1>Аукцион Кеса<br><span style="font-size:0.7em;background:linear-gradient(45deg,#ffd700,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Нормальный Аукцион</span></h1>
     <div class="subtitle">Платит только победитель</div>
-    <div class="status" id="status">Инициализация...</div>
+    <div class="status" id="status">Загрузка...</div>
 
     <div class="form-container">
         <h2 style="text-align:center;margin-top:0">Сделать ставку</h2>
-        <input type="text" id="nick" placeholder="Твой ник">
-        <input type="number" id="amount" placeholder="Сумма в рублях" min="1">
+        <input type="text" id="nick" placeholder="Твой ник" required>
+        <input type="number" id="amount" placeholder="Сумма в рублях" min="1" required>
         <button onclick="placeBet()">ПОСТАВИТЬ</button>
     </div>
 
     <div id="betsTableContainer"></div>
 
     <script>
-        const TOKEN = "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";  // ← свежий токен
-        const REPO = "KesidaMoe/auk2";
-        const FOLDER = "bets";
-        const API = `https://api.github.com/repos/${REPO}/contents/${FOLDER}`;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbYbnuwnEV4IPxW5SoghXCqFKLfpqDBedbCaydR1BUlQLzYcO5Fj6a-J3c6p_VGLTo/exec";
 
         let bets = [];
 
         async function loadBets() {
             try {
-                const res = await fetch(API, {headers: {Authorization: `token ${TOKEN}`}});
-                if (res.status === 404) {
-                    document.getElementById("status").textContent = "Папка bets ещё не создана — первая ставка создаст её автоматически";
-                    bets = [];
-                    renderTable();
-                    return;
-                }
-                if (!res.ok) throw new Error(`Ошибка ${res.status}`);
-                const files = await res.json();
-                bets = [];
-                for (let file of files) {
-                    if (file.name.endsWith(".json")) {
-                        const data = await (await fetch(file.download_url)).json();
-                        bets.push(data);
-                    }
-                }
-                sortAndRender();
-                document.getElementById("status").textContent = `Обновлено ${new Date().toLocaleTimeString()} | Ставок: ${bets.length}`;
+                const res = await fetch(SCRIPT_URL);
+                bets = await res.json();
+                bets.sort((a, b) => b.amount - a.amount);
+                renderTable();
+                document.getElementById('status').textContent = `Обновлено ${new Date().toLocaleTimeString()} | Ставок: ${bets.length}`;
             } catch (e) {
-                document.getElementById("status").textContent = "Ошибка загрузки: " + e.message;
+                document.getElementById('status').textContent = 'Ошибка загрузки: ' + e.message;
             }
         }
 
-        function sortAndRender() {
-            bets.sort((a,b) => b.amount - a.amount);
-            renderTable();
-        }
-
         async function placeBet() {
-            const nick = document.getElementById("nick").value.trim();
-            const amount = parseInt(document.getElementById("amount").value);
-            if (!nick || !amount) return alert("Заполни ник и сумму!");
+            const nick = document.getElementById('nick').value.trim();
+            const amount = parseInt(document.getElementById('amount').value);
+
+            if (!nick || !amount || amount <= 0) return alert('Заполни ник и сумму!');
 
             const existing = bets.find(b => b.nick.toLowerCase() === nick.toLowerCase());
-            if (existing && existing.amount >= amount) return alert("Делай ставку выше своей текущей!");
+            if (existing && existing.amount >= amount) return alert('Делай ставку выше своей!');
 
-            const bet = {nick, amount, date: new Date().toLocaleString()};
-            const filename = `${nick.toLowerCase().replace(/[^a-z0-9]/g,"")}_${Date.now()}.json`;
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(bet))));
+            const date = new Date().toLocaleString();
+            const data = { nick, amount, date };
 
             try {
-                await fetch(API + "/" + filename, {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `token ${TOKEN}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({message: `Ставка ${nick}: ${amount}₽`, content})
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
                 });
-                document.getElementById("nick").value = "";
-                document.getElementById("amount").value = "";
+                document.getElementById('nick').value = '';
+                document.getElementById('amount').value = '';
                 loadBets();
             } catch (e) {
-                alert("Не удалось сохранить ставку: " + e.message);
+                alert('Ошибка отправки: ' + e.message);
             }
         }
 
         function renderTable() {
-            const c = document.getElementById("betsTableContainer");
+            const container = document.getElementById('betsTableContainer');
             if (bets.length === 0) {
-                c.innerHTML = '<div class="no-bets">Пока пусто<br>Кто будет первым?</div>';
+                container.innerHTML = '<div class="no-bets">Пока пусто<br>Кто будет первым?</div>';
                 return;
             }
-            let html = `<table><tr><th>№</th><th>Ник</th><th>Сумма</th><th>Время</th></tr>`;
-            bets.forEach((b,i) => {
-                html += `<tr ${i===0?'class="winner"':''}>
-                    <td>${i+1}</td><td>${b.nick}</td>
-                    <td><strong>${b.amount.toLocaleString()} ₽</strong></td>
-                    <td>${b.date}</td>
-                </tr>`;
+
+            let html = `
+                <table>
+                    <tr>
+                        <th>№</th>
+                        <th>Ник</th>
+                        <th>Сумма</th>
+                        <th>Время</th>
+                    </tr>
+            `;
+            bets.forEach((bet, index) => {
+                const rowClass = index === 0 ? 'class="winner"' : '';
+                html += `
+                    <tr ${rowClass}>
+                        <td>${index + 1}</td>
+                        <td>${bet.nick}</td>
+                        <td><strong>${bet.amount.toLocaleString()} ₽</strong></td>
+                        <td>${bet.date}</td>
+                    </tr>
+                `;
             });
-            c.innerHTML = html + "</table>";
+            html += `</table>`;
+            container.innerHTML = html;
         }
 
         loadBets();
-        setInterval(loadBets, 8000);
+        setInterval(loadBets, 5000); // Обновление каждые 5 сек
     </script>
 </body>
 </html>
