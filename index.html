@@ -47,7 +47,15 @@
         async function loadBets() {
             try {
                 const res = await fetch(SCRIPT_URL);
-                bets = await res.json();
+                const rawBets = await res.json();
+                const betsMap = new Map();
+                rawBets.forEach(bet => {
+                    const lowerNick = bet.nick.toLowerCase();
+                    if (!betsMap.has(lowerNick) || betsMap.get(lowerNick).amount < bet.amount) {
+                        betsMap.set(lowerNick, bet);
+                    }
+                });
+                bets = Array.from(betsMap.values());
                 bets.sort((a, b) => b.amount - a.amount);
                 renderTable();
                 document.getElementById('status').textContent = `Обновлено ${new Date().toLocaleTimeString()} | Ставок: ${bets.length}`;
