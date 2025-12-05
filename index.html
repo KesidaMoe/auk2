@@ -50,9 +50,11 @@
                 const rawBets = await res.json();
                 const betsMap = new Map();
                 rawBets.forEach(bet => {
-                    const lowerNick = bet.nick.toLowerCase();
-                    if (!betsMap.has(lowerNick) || betsMap.get(lowerNick).amount < bet.amount) {
-                        betsMap.set(lowerNick, bet);
+                    if (bet && bet.nick && typeof bet.nick === 'string') {
+                        const lowerNick = bet.nick.toLowerCase();
+                        if (!betsMap.has(lowerNick) || betsMap.get(lowerNick).amount < bet.amount) {
+                            betsMap.set(lowerNick, bet);
+                        }
                     }
                 });
                 bets = Array.from(betsMap.values());
